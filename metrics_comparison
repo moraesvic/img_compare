@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+# Image compression and resizing algorithms are NOT
+# deterministic. This means that every time we run the command, the output
+# could vary slightly. Besides that, metadata could be changed while image
+# data remains identical. A MD5 hash is NOT appropriate for checking if the
+# conversion was correctly done.
+
+# We will need to use ImageMagick's compare. As a metric, we will use "AE"
+# (absolute number of different pixels), and define a tolerance margin of
+# 
+
+# https://stackoverflow.com/questions/6380818/imagemagick-making-different-images-on-windows-and-linux
+# https://askubuntu.com/questions/209517/does-diff-exist-for-images
+
+this_dir="$(dirname "$0")"
+original="$this_dir/logo.png"
+hue="$this_dir/logo_hue.png"
+spots="$this_dir/logo_spots.png"
+
+metric_ae="-metric AE"
+metric_fuzz="-metric FUZZ"
+metric_mae="-metric MAE"
+metric_mepp="-metric MEPP"
+metric_ncc="-metric NCC"
+
+printf "Comparison for metric = Absolute Error Count"
+printf "\nhue\t: "
+compare $metric_ae "$original" "$hue" /dev/null
+printf "\nspots\t: "
+compare $metric_ae "$original" "$spots" /dev/null
+
+printf "\n\nComparison for metric = Mean Color Distance"
+printf "\nhue\t: "
+compare $metric_fuzz "$original" "$hue" /dev/null
+printf "\nspots\t: "
+compare $metric_fuzz "$original" "$spots" /dev/null
+
+printf "\n\nComparison for metric = Mean Absolute Error"
+printf "\nhue\t: "
+compare $metric_mae "$original" "$hue" /dev/null
+printf "\nspots\t: "
+compare $metric_mae "$original" "$spots" /dev/null
+
+printf "\n\nComparison for metric = Mean Error Per Pixel"
+printf "\nhue\t: "
+compare $metric_mepp "$original" "$hue" /dev/null
+printf "\nspots\t: "
+compare $metric_mepp "$original" "$spots" /dev/null
+
+printf "\n\nComparison for metric = Normalized Cross Correlation"
+printf "\nhue\t: "
+compare $metric_ncc "$original" "$hue" /dev/null
+printf "\nspots\t: "
+compare $metric_ncc "$original" "$spots" /dev/null
+
+echo ""
